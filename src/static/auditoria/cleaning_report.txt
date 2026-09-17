@@ -1,0 +1,25 @@
+REPORTE DE AUDITORÍA - LIMPIEZA Y PREPROCESAMIENTO DE DATOS
+Fecha y hora de ejecución: 2026-09-16T23:38:59.802742
+======================================================================
+ESTADO INICIAL (antes de limpiar)
+  Registros iniciales: 41
+  Duplicados por id detectados: 0
+  Nulos por columna: {'id': 0, 'nombre': 0, 'descripcion': 0, 'latitud': 0, 'longitud': 0, 'ciudad_id': 0, 'imagenes': 0, 'ciudad': 0, 'poblacion': 20, 'departamento_id': 0}
+  Tipos de datos originales: {'id': 'int64', 'nombre': 'str', 'descripcion': 'str', 'latitud': 'float64', 'longitud': 'float64', 'ciudad_id': 'int64', 'imagenes': 'str', 'ciudad': 'str', 'poblacion': 'float64', 'departamento_id': 'int64'}
+======================================================================
+OPERACIONES DE LIMPIEZA REALIZADAS
+  Duplicados eliminados por id: 0
+  Duplicados lógicos eliminados (nombre+ciudad): 0
+  Tipos corregidos: ['latitud -> float', 'longitud -> float', 'poblacion -> Int64']
+  Valores inválidos detectados al convertir tipos: 0
+  Nulos en descripción rellenados: 0
+  Nulos en población imputados (mediana=538612.0): 20
+  Filas eliminadas por coordenadas nulas: 0
+  Outliers geográficos eliminados: 0
+  Transformaciones adicionales aplicadas: ['Normalización de texto en nombre y ciudad', 'Cálculo de num_imagenes a partir del campo imagenes', 'Escalado min-max de poblacion -> poblacion_normalizada']
+======================================================================
+ESTADO FINAL (después de limpiar)
+  Registros finales: 41
+  Registros eliminados en total: 0
+======================================================================
+Conclusión: El proceso de limpieza se ejecutó correctamente y el conjunto de datos resultante está libre de duplicados, con tipos de datos consistentes y sin valores nulos en campos críticos.

@@ -1,0 +1,11 @@
+REPORTE DE AUDITORÍA - INGESTA DE DATOS
+Fecha y hora de ejecución: 2026-09-16T23:38:25.978128
+API consultada: https://api-colombia.com/api/v1/TouristicAttraction
+------------------------------------------------------------
+Registros extraídos del API: 41
+Registros almacenados en la BD: 41
+¿Coinciden las cantidades?: True
+IDs en API pero ausentes en BD: Ninguno
+IDs en BD pero ausentes en API: Ninguno
+------------------------------------------------------------
+Conclusión: La ingesta fue exitosa y los datos son consistentes.

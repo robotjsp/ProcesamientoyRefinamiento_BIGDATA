@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: ingestion-bigdata
+Version: 1.0.0
+Summary: Ingesta de datos desde el API de Colombia hacia SQLite, con evidencias en Excel y auditoría en TXT
+Requires-Python: >=3.10
+Requires-Dist: requests>=2.31.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: openpyxl>=3.1.0
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

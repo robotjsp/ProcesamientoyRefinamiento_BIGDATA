@@ -1,0 +1,72 @@
+# bigdata.yml
+# -----------
+# Workflow de GitHub Actions que automatiza el pipeline completo del proyecto:
+# EA1 (ingesta desde el API) + EA2 (limpieza y preprocesamiento), publicando
+# todas las evidencias generadas en cada etapa.
+
+name: Ingesta y Limpieza de Datos - Proyecto Big Data   # Nombre visible del workflow en la pestaña Actions
+
+on:                                # Define los eventos que disparan el workflow
+  workflow_dispatch:               # Permite ejecutarlo manualmente desde la pestaña Actions (botón "Run workflow")
+  push:                            # También se ejecuta automáticamente en cada push
+    branches: [ "main" ]           # ...pero solo cuando el push es a la rama main
+  schedule:                        # Permite programar ejecuciones automáticas periódicas
+    - cron: "0 6 * * *"            # Corre todos los días a las 06:00 UTC (opcional, se puede quitar)
+
+permissions:                      # Permisos que necesita el workflow
+  contents: write                 # Necesario para poder hacer "git push" de las evidencias generadas
+
+jobs:                              # Sección que agrupa los trabajos (jobs) del workflow
+  ingesta:                         # Nombre interno del job
+    runs-on: ubuntu-latest         # Usa una máquina virtual con la última versión de Ubuntu
+
+    steps:                                     # Lista ordenada de pasos que ejecuta el job
+      - name: Clonar repositorio               # Nombre descriptivo del paso
+        uses: actions/checkout@v4              # Acción oficial que descarga el código del repo al runner
+
+      - name: Configurar Python                # Nombre descriptivo del paso
+        uses: actions/setup-python@v5          # Acción oficial que instala Python en el runner
+        with:
+          python-version: "3.11"               # Versión de Python que se va a usar
+
+      - name: Instalar dependencias             # Nombre descriptivo del paso
+        run: |
+          python -m pip install --upgrade pip   # Actualiza pip a la última versión
+          pip install -e .                      # Instala el proyecto en modo editable usando setup.py (trae requests, pandas, openpyxl)
+
+      - name: Ejecutar script de ingesta (EA1)     # Nombre descriptivo del paso
+        run: python src/ingestion.py             # Corre el pipeline de ingesta: extrae del API, guarda en BD, genera Excel y auditoría
+
+      - name: Ejecutar script de limpieza (EA2)    # Nombre descriptivo del paso
+        run: python src/cleaning.py              # Lee la BD generada arriba (simula la nube), limpia y genera evidencias
+
+      - name: Verificar archivos generados        # Nombre descriptivo del paso
+        run: |
+          echo "Verificando que las evidencias de la EA1 existan..."   # Mensaje informativo en el log
+          ls -lh src/db/ingestion.db                          # Muestra el tamaño/existencia de la base de datos
+          ls -lh src/xlsx/ingestion.xlsx                       # Muestra el tamaño/existencia del Excel de muestra (EA1)
+          ls -lh src/static/auditoria/ingestion.txt            # Muestra el tamaño/existencia del archivo de auditoría (EA1)
+          echo "Verificando que las evidencias de la EA2 existan..."   # Mensaje informativo en el log
+          ls -lh src/xlsx/cleaned_data.xlsx                    # Muestra el tamaño/existencia del Excel de datos limpios (EA2)
+          ls -lh src/static/auditoria/cleaning_report.txt      # Muestra el tamaño/existencia del reporte de limpieza (EA2)
+          echo "--- Contenido del reporte de limpieza ---"     # Mensaje informativo en el log
+          cat src/static/auditoria/cleaning_report.txt          # Imprime el contenido del reporte en el log del workflow
+
+      - name: Publicar evidencias como artefactos  # Nombre descriptivo del paso
+        uses: actions/upload-artifact@v4           # Acción oficial que sube archivos como artefactos descargables
+        with:
+          name: evidencias-proyecto                # Nombre del artefacto que verá el usuario en la pestaña Actions
+          path: |
+            src/db/ingestion.db                    # Incluye la base de datos generada (EA1)
+            src/xlsx/ingestion.xlsx                # Incluye el Excel de muestra cruda (EA1)
+            src/static/auditoria/ingestion.txt     # Incluye el archivo de auditoría de ingesta (EA1)
+            src/xlsx/cleaned_data.xlsx             # Incluye el Excel de datos limpios (EA2)
+            src/static/auditoria/cleaning_report.txt  # Incluye el reporte de limpieza (EA2)
+
+      - name: Commitear evidencias al repositorio   # Nombre descriptivo del paso (deja rastro directo en el repo)
+        run: |
+          git config user.name "github-actions[bot]"                     # Configura el nombre del autor del commit
+          git config user.email "github-actions[bot]@users.noreply.github.com"  # Configura el email del autor del commit
+          git add src/db/ingestion.db src/xlsx/ingestion.xlsx src/static/auditoria/ingestion.txt src/xlsx/cleaned_data.xlsx src/static/auditoria/cleaning_report.txt  # Agrega todos los archivos generados
+          git commit -m "Actualización automática de evidencias de ingesta y limpieza [skip ci]" || echo "Sin cambios para commitear"  # Commitea (o no falla si no hay cambios)
+          git push                                                        # Sube el commit al repositorio
