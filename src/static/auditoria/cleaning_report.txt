@@ -1,5 +1,5 @@
 REPORTE DE AUDITORÍA - LIMPIEZA Y PREPROCESAMIENTO DE DATOS
-Fecha y hora de ejecución: 2026-11-22T13:57:43.848466
+Fecha y hora de ejecución: 2026-11-23T17:13:54.920241
 ======================================================================
 ESTADO INICIAL (antes de limpiar)
   Registros iniciales: 41
